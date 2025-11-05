@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\BackendTests",
+    "\\DataServiceLayer",
+    "\\DataServiceLayer\\Model",
+    "\\WebServiceLayer",
+    "\\WebServiceLayer\\Controllers",
+    "\\WebServiceLayer\\Dto",
+    "\\WebServiceLayer\\Middleware",
+    "\\WebServiceLayer\\Models"
+  ],
+  "SelectedNode": "\\appsettings.json",
+  "PreviewInSolutionExplorer": false
+}

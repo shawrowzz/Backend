@@ -1,0 +1,140 @@
+﻿@baseUrl = http://localhost:7000
+
+### 1. User Authentication
+# Register new user
+POST {{baseUrl}}/api/users/register
+Content-Type: application/json
+
+{
+  "username": "saroj2",
+  "email": "saroj2@test.com",
+  "password": "111"
+}
+
+### Login user
+POST {{baseUrl}}/api/users/login
+Content-Type: application/json
+
+{
+  "username": "samarpan",
+  "password": "pass123"
+}
+
+### 2. Public Data Titles
+
+### Get titles
+GET {{baseUrl}}/api/titles?page=0&pageSize=5
+Accept: application/json
+
+### Get persons
+GET {{baseUrl}}/api/persons?page=0&pageSize=5
+Accept: application/json
+
+### Get genres
+GET {{baseUrl}}/api/genres
+Accept: application/json
+
+### Search persons
+GET {{baseUrl}}/api/search/persons?q=smith
+Accept: application/json
+
+### 3. Authenticated Search
+### Simple search
+GET {{baseUrl}}/api/search/simple?q=Office
+Authorization: 11
+Accept: application/json
+
+### 4. User Ratings
+### Create user rating
+POST {{baseUrl}}/api/users/1/ratings
+Authorization: samarpan
+Content-Type: application/json
+
+{
+  "titleTConst": "tt0081912",
+  "rating": 8
+}
+
+### Get user ratings
+GET {{baseUrl}}/api/users/1/ratings
+Authorization: samarpan
+Accept: application/json
+
+### 5. User Bookmarks
+
+### Create title bookmark
+POST {{baseUrl}}/api/users/15/bookmarks
+Authorization: saroj1
+Content-Type: application/json
+
+{
+  "titleTConst": "tt0133093",
+  "personNConst": "",
+  "bookmarkType": "favorite",
+  "folder": "movies",
+  "notes": "Great sci-fi movie"
+}
+
+### Create person bookmark
+POST {{baseUrl}}/api/users/15/bookmarks
+Authorization: saroj1
+Content-Type: application/json
+
+{
+  "titleTConst": "",
+  "personNConst": "nm3298314",
+  "bookmarkType": "favorite_actor",
+  "folder": "actors",
+  "notes": "Favorite actor"
+}
+
+### Get user bookmarks
+GET {{baseUrl}}/api/users/15/bookmarks
+Authorization: saroj1
+Accept: application/json
+
+### 6. User Notes
+
+### Create user note
+POST {{baseUrl}}/api/users/26/notes
+Authorization: saroj2
+Content-Type: application/json
+
+{
+  "titleTConst": "tt0081912",
+  "noteText": "This is an amazing movie with great visual effects and storyline."
+}
+
+### Get user notes
+GET {{baseUrl}}/api/users/26/notes
+Authorization: saroj2
+Accept: application/json
+
+### 7. Search History
+
+### Get user search history
+GET {{baseUrl}}/api/users/15/search-history
+Authorization: saroj1
+Accept: application/json
+
+### 8. Title Details
+### Get title details
+GET {{baseUrl}}/api/titles/tt0063929
+Accept: application/json
+
+### Get title cast
+GET {{baseUrl}}/api/titles/tt0063929/cast
+Accept: application/json
+
+### Get title genres
+GET {{baseUrl}}/api/titles/tt0063929/genres
+Accept: application/json
+
+### 9. Person Details
+### Get person details
+GET {{baseUrl}}/api/persons/nm0000206
+Accept: application/json
+
+### Get person's titles
+GET {{baseUrl}}/api/persons/nm0000206/titles
+Accept: application/json
