@@ -6,4 +6,7 @@ public class Person
     public string? PrimaryName { get; set; }
     public string? BirthYear { get; set; }
     public string? DeathYear { get; set; }
+    public decimal? WeightedRating { get; set; }
+    public int? RatingWeight { get; set; }
+
 }

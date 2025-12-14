@@ -40,6 +40,7 @@ public interface IDataService
     bool DeleteBookmark(int bookmarkId);
 
     IList<SearchHistory> GetUserSearchHistory(int userId);
+    bool ClearSearchHistory(int userId); 
 
     IList<Profession> GetProfessions();
     IList<PersonProfession> GetProfessionsByPerson(string nconst);
@@ -58,4 +59,19 @@ public interface IDataService
     IList<Genre> GetGenres();
 
     IList<KnownForTitle> GetKnownForTitles(string nconst);
+
+    List<CoPlayer> FindCoPlayers(string actorName);
+
+    List<SimilarMovie> FindSimilarMovies(string tconst, int limit = 10);
+
+    List<PersonWord> GetPersonWords(string personName, int limit = 10);
+
+    List<ExactMatchResult> ExactMatchSearch(string[] keywords, int limit = 50);
+
+    List<BestMatchResult> BestMatchSearch(string[] keywords, int limit = 50);
+    decimal? GetAverageRating(string tconst);
+
+    List<PopularActor> GetPopularActorsInMovie(string tconst);
+
+    OmdbData? GetOmdbData(string tconst);
 }

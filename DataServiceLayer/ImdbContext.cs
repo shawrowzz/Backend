@@ -15,7 +15,7 @@ public class ImdbContext : DbContext
     public ImdbContext(DbContextOptions<ImdbContext> options) : base(options)
     {
     }
-
+    public DbSet<OmdbData> OmdbDatas { get; set; }
     public DbSet<Title> Titles { get; set; }
     public DbSet<Person> Persons { get; set; }
     public DbSet<TitlePerson> TitlePersons { get; set; }
@@ -32,6 +32,7 @@ public class ImdbContext : DbContext
     public DbSet<UserNote> UserNotes { get; set; }
     public DbSet<Genre> Genres { get; set; }
     public DbSet<KnownForTitle> KnownForTitles { get; set; }
+    public DbSet<WiWord> WiWords { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -44,6 +45,7 @@ public class ImdbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<OmdbData>().ToTable("omdb_datas");
         modelBuilder.Entity<Title>().ToTable("title");
         modelBuilder.Entity<Person>().ToTable("person");
         modelBuilder.Entity<TitlePerson>().ToTable("title_person");
@@ -55,6 +57,7 @@ public class ImdbContext : DbContext
         modelBuilder.Entity<TitleEpisode>().ToTable("title_episodes");
         modelBuilder.Entity<Genre>().ToTable("genre");
         modelBuilder.Entity<KnownForTitle>().ToTable("known_for_title");
+        modelBuilder.Entity<WiWord>().ToTable("wi");
 
         modelBuilder.Entity<User>().ToTable("app_user");
         modelBuilder.Entity<UserRating>().ToTable("user_rating");
@@ -62,7 +65,8 @@ public class ImdbContext : DbContext
         modelBuilder.Entity<UserNote>().ToTable("user_note");
         modelBuilder.Entity<SearchHistory>().ToTable("search_history");
 
-        
+
+        ConfigureOmdbData(modelBuilder);
         ConfigureTitle(modelBuilder);
         ConfigurePerson(modelBuilder);
         ConfigureTitlePerson(modelBuilder);
@@ -74,11 +78,38 @@ public class ImdbContext : DbContext
         ConfigureTitleEpisode(modelBuilder);
         ConfigureGenre(modelBuilder);
         ConfigureKnownForTitle(modelBuilder);
+        ConfigureWiWord(modelBuilder);
         ConfigureUser(modelBuilder);
         ConfigureUserRating(modelBuilder);
         ConfigureUserBookmark(modelBuilder);
         ConfigureUserNote(modelBuilder);
         ConfigureSearchHistory(modelBuilder);
+    }
+
+    private void ConfigureOmdbData(ModelBuilder modelBuilder)
+    {
+
+        modelBuilder.Entity<OmdbData>().HasKey(x => x.TConst);
+        modelBuilder.Entity<OmdbData>().Property(x => x.TConst).HasColumnName("tconst");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Episode).HasColumnName("episode");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Awards).HasColumnName("awards");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Plot).HasColumnName("plot");
+        modelBuilder.Entity<OmdbData>().Property(x => x.SeriesId).HasColumnName("seriesid");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Rated).HasColumnName("rated");
+        modelBuilder.Entity<OmdbData>().Property(x => x.ImdbRating).HasColumnName("imdbrating");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Runtime).HasColumnName("runtime");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Language).HasColumnName("language");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Released).HasColumnName("released");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Response).HasColumnName("response");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Writer).HasColumnName("writer");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Genre).HasColumnName("genre");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Title).HasColumnName("title");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Country).HasColumnName("country");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Dvd).HasColumnName("dvd");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Production).HasColumnName("production");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Season).HasColumnName("season");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Type).HasColumnName("type");
+        modelBuilder.Entity<OmdbData>().Property(x => x.Poster).HasColumnName("poster");
     }
 
     private void ConfigureTitle(ModelBuilder modelBuilder)
@@ -101,6 +132,8 @@ public class ImdbContext : DbContext
         modelBuilder.Entity<Person>().Property(x => x.PrimaryName).HasColumnName("primaryname");
         modelBuilder.Entity<Person>().Property(x => x.BirthYear).HasColumnName("birthyear");
         modelBuilder.Entity<Person>().Property(x => x.DeathYear).HasColumnName("deathyear");
+        modelBuilder.Entity<Person>().Property(x => x.WeightedRating).HasColumnName("weighted_rating");
+        modelBuilder.Entity<Person>().Property(x => x.RatingWeight).HasColumnName("rating_weight");
     }
 
     private void ConfigureTitlePerson(ModelBuilder modelBuilder)
@@ -177,6 +210,15 @@ public class ImdbContext : DbContext
         modelBuilder.Entity<KnownForTitle>().Property(x => x.TConst).HasColumnName("tconst");
     }
 
+    private void ConfigureWiWord(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<WiWord>().HasNoKey();
+        modelBuilder.Entity<WiWord>().Property(x => x.TConst).HasColumnName("tconst");
+        modelBuilder.Entity<WiWord>().Property(x => x.Word).HasColumnName("word");
+        modelBuilder.Entity<WiWord>().Property(x => x.Field).HasColumnName("field");
+        modelBuilder.Entity<WiWord>().Property(x => x.Lexme).HasColumnName("lexme");
+    }
+
     private void ConfigureUser(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasKey(x => x.UserId);
@@ -228,6 +270,7 @@ public class ImdbContext : DbContext
         modelBuilder.Entity<SearchHistory>().Property(x => x.UserId).HasColumnName("user_id");
         modelBuilder.Entity<SearchHistory>().Property(x => x.SearchQuery).HasColumnName("search_query");
         modelBuilder.Entity<SearchHistory>().Property(x => x.SearchType).HasColumnName("search_type");
+        modelBuilder.Entity<SearchHistory>().Property(x => x.SearchResultsCount).HasColumnName("search_results_count");
         modelBuilder.Entity<SearchHistory>().Property(x => x.SearchedAt).HasColumnName("searched_at");
     }
 }

@@ -18,18 +18,15 @@ public class BaseController : ControllerBase
 
     protected DataServiceLayer.Models.User GetAuthenticatedUser()
     {
-       
         if (HttpContext.Items.TryGetValue("User", out var userObj) && userObj is DataServiceLayer.Models.User user)
         {
             return user;
         }
 
-       
         var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
         if (!string.IsNullOrEmpty(authHeader))
         {
             var username = authHeader.Trim();
-            
             var authenticatedUser = _dataService.GetUser(username);
             if (authenticatedUser != null)
             {
@@ -44,7 +41,10 @@ public class BaseController : ControllerBase
     protected IActionResult RequireAuthentication()
     {
         var user = GetAuthenticatedUser();
-        if (user == null) return Unauthorized("Authentication required");
+        if (user == null)
+        {
+            return Unauthorized(new { message = "Authentication required. Please login." });
+        }
         return null;
     }
 
@@ -54,7 +54,10 @@ public class BaseController : ControllerBase
         if (authResult != null) return authResult;
 
         var user = GetAuthenticatedUser();
-        if (user.UserId != userId) return Unauthorized("User mismatch");
+        if (user.UserId != userId)
+        {
+            return Unauthorized(new { message = "User mismatch. You can only access your own data." });
+        }
         return null;
     }
 
@@ -77,7 +80,14 @@ public class BaseController : ControllerBase
 
     protected string GetUrl(string endpointName, object values)
     {
-        return _generator.GetUriByName(HttpContext, endpointName, values);
+        try
+        {
+            return _generator.GetUriByName(HttpContext, endpointName, values) ?? "";
+        }
+        catch
+        {
+            return "";
+        }
     }
 
     protected TitleModel MapToTitleModel(TitleDto dto)
@@ -92,7 +102,15 @@ public class BaseController : ControllerBase
             IsAdult = dto.IsAdult,
             StartYear = dto.StartYear,
             EndYear = dto.EndYear,
-            RuntimeMinutes = dto.RuntimeMinutes
+            RuntimeMinutes = dto.RuntimeMinutes,
+            Plot = dto.Plot,
+            Poster = dto.Poster,
+            Genre = dto.Genre,
+            Runtime = dto.Runtime,
+            Rated = dto.Rated,
+            Language = dto.Language,
+            Country = dto.Country,
+            Released = dto.Released
         };
     }
 
@@ -117,6 +135,24 @@ public class BaseController : ControllerBase
             Username = dto.Username,
             Email = dto.Email,
             CreatedAt = dto.CreatedAt
+        };
+    }
+
+    protected OmdbDataModel MapToOmdbDataModel(OmdbDataDto dto)
+    {
+        return new OmdbDataModel
+        {
+            Url = GetUrl(nameof(TitlesController.GetTitleOmdbData), new { tconst = dto.TConst }),
+            TConst = dto.TConst,
+            Plot = dto.Plot,
+            Poster = dto.Poster,
+            Awards = dto.Awards,
+            Rated = dto.Rated,
+            Runtime = dto.Runtime,
+            Genre = dto.Genre,
+            Language = dto.Language,
+            Country = dto.Country,
+            Released = dto.Released
         };
     }
 }

@@ -9039,11 +9039,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Backend\\BackendTests\\Backend.Tests.csproj",
+      "projectUniqueName": "C:\\Users\\user\\source\\repos\\Subproject2Backend\\BackendTests\\Backend.Tests.csproj",
       "projectName": "Backend.Tests",
-      "projectPath": "E:\\Backend\\BackendTests\\Backend.Tests.csproj",
+      "projectPath": "C:\\Users\\user\\source\\repos\\Subproject2Backend\\BackendTests\\Backend.Tests.csproj",
       "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-      "outputPath": "E:\\Backend\\BackendTests\\obj\\",
+      "outputPath": "C:\\Users\\user\\source\\repos\\Subproject2Backend\\BackendTests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -9064,11 +9064,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\Backend\\DataServiceLayer\\DataServiceLayer.csproj": {
-              "projectPath": "E:\\Backend\\DataServiceLayer\\DataServiceLayer.csproj"
+            "C:\\Users\\user\\source\\repos\\Subproject2Backend\\DataServiceLayer\\DataServiceLayer.csproj": {
+              "projectPath": "C:\\Users\\user\\source\\repos\\Subproject2Backend\\DataServiceLayer\\DataServiceLayer.csproj"
             },
-            "E:\\Backend\\WebServiceLayer\\WebServiceLayer.csproj": {
-              "projectPath": "E:\\Backend\\WebServiceLayer\\WebServiceLayer.csproj"
+            "C:\\Users\\user\\source\\repos\\Subproject2Backend\\WebServiceLayer\\WebServiceLayer.csproj": {
+              "projectPath": "C:\\Users\\user\\source\\repos\\Subproject2Backend\\WebServiceLayer\\WebServiceLayer.csproj"
             }
           }
         }

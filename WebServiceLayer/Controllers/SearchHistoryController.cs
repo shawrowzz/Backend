@@ -20,13 +20,22 @@ public class SearchHistoryController : BaseController
         var authResult = RequireUserMatch(userId);
         if (authResult != null) return authResult;
 
-        var history = _dataService.GetUserSearchHistory(userId)
+        var history = _dataService.GetUserSearchHistory(userId);
+
+        // Handle no search history
+        if (!history.Any())
+        {
+            return Ok(new { message = "No search history found" });
+        }
+
+        var historyModels = history
             .Select(x => new SearchHistoryDto
             {
                 SearchId = x.SearchId,
                 UserId = x.UserId,
-                SearchQuery = x.SearchQuery,
-                SearchType = x.SearchType,
+                SearchQuery = x.SearchQuery ?? string.Empty,
+                SearchType = x.SearchType ?? string.Empty,
+                SearchResultsCount = x.SearchResultsCount,
                 SearchedAt = x.SearchedAt
             })
             .Select(dto => new SearchHistoryModel
@@ -36,10 +45,11 @@ public class SearchHistoryController : BaseController
                 UserId = dto.UserId,
                 SearchQuery = dto.SearchQuery,
                 SearchType = dto.SearchType,
+                SearchResultsCount = dto.SearchResultsCount,
                 SearchedAt = dto.SearchedAt
             })
             .ToList();
 
-        return Ok(history);
+        return Ok(historyModels);
     }
 }

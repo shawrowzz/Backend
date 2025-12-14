@@ -16,14 +16,28 @@ public class AuthMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var userName = context.Request.Headers.Authorization.FirstOrDefault();
+        var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
 
-        if (!string.IsNullOrEmpty(userName))
+        if (!string.IsNullOrEmpty(authHeader))
         {
-            var user = _dataService.GetUser(userName);
-            if (user != null)
+            // Try to parse as user ID first (number), then as username
+            if (int.TryParse(authHeader, out int userId))
             {
-                context.Items["User"] = user;
+                // Get user by ID
+                var user = _dataService.GetUser(userId);
+                if (user != null)
+                {
+                    context.Items["User"] = user;
+                }
+            }
+            else
+            {
+                // Get user by username
+                var user = _dataService.GetUser(authHeader);
+                if (user != null)
+                {
+                    context.Items["User"] = user;
+                }
             }
         }
 

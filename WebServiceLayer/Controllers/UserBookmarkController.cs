@@ -14,39 +14,76 @@ public class UserBookmarksController : BaseController
     {
     }
 
-    [HttpGet(Name = nameof(GetUserBookmarks))]
-    public IActionResult GetUserBookmarks(int userId)
+    [HttpPost(Name = nameof(CreateUserBookmark))]
+    public IActionResult CreateUserBookmark(int userId, [FromBody] CreateBookmarkModel createBookmark)
     {
         var authResult = RequireUserMatch(userId);
         if (authResult != null) return authResult;
 
-        var bookmarks = _dataService.GetUserBookmarks(userId)
-            .Select(x => new UserBookmarkDto
+        try
+        {
+            if (string.IsNullOrEmpty(createBookmark.BookmarkType))
             {
-                BookmarkId = x.BookmarkId,
-                UserId = x.UserId,
-                TitleTConst = x.TitleTConst,
-                PersonNConst = x.PersonNConst,
-                BookmarkType = x.BookmarkType,
-                Folder = x.Folder,
-                Notes = x.Notes,
-                CreatedAt = x.CreatedAt
-            })
-            .Select(dto => new UserBookmarkModel
-            {
-                Url = GetUrl(nameof(GetUserBookmark), new { userId, bookmarkId = dto.BookmarkId }),
-                BookmarkId = dto.BookmarkId,
-                UserId = dto.UserId,
-                TitleTConst = dto.TitleTConst,
-                PersonNConst = dto.PersonNConst,
-                BookmarkType = dto.BookmarkType,
-                Folder = dto.Folder,
-                Notes = dto.Notes,
-                CreatedAt = dto.CreatedAt
-            })
-            .ToList();
+                return BadRequest(new { message = "Bookmark type is required" });
+            }
 
-        return Ok(bookmarks);
+            if (createBookmark.BookmarkType == "title" && string.IsNullOrEmpty(createBookmark.TitleTConst))
+            {
+                return BadRequest(new { message = "Title tconst is required for title bookmarks" });
+            }
+
+            if (createBookmark.BookmarkType == "person" && string.IsNullOrEmpty(createBookmark.PersonNConst))
+            {
+                return BadRequest(new { message = "Person nconst is required for person bookmarks" });
+            }
+
+            var bookmark = _dataService.CreateBookmark(
+                userId,
+                createBookmark.TitleTConst,
+                createBookmark.PersonNConst,
+                createBookmark.BookmarkType,
+                createBookmark.Folder ?? "General",
+                createBookmark.Notes ?? "");
+
+            var bookmarkDto = new UserBookmarkDto
+            {
+                BookmarkId = bookmark.BookmarkId,
+                UserId = bookmark.UserId,
+                TitleTConst = bookmark.TitleTConst,
+                PersonNConst = bookmark.PersonNConst,
+                BookmarkType = bookmark.BookmarkType,
+                Folder = bookmark.Folder,
+                Notes = bookmark.Notes,
+                CreatedAt = bookmark.CreatedAt
+            };
+
+            var bookmarkModel = new UserBookmarkModel
+            {
+                Url = GetUrl(nameof(GetUserBookmark), new { userId, bookmarkId = bookmarkDto.BookmarkId }),
+                BookmarkId = bookmarkDto.BookmarkId,
+                UserId = bookmarkDto.UserId,
+                TitleTConst = bookmarkDto.TitleTConst,
+                PersonNConst = bookmarkDto.PersonNConst,
+                BookmarkType = bookmarkDto.BookmarkType,
+                Folder = bookmarkDto.Folder,
+                Notes = bookmarkDto.Notes,
+                CreatedAt = bookmarkDto.CreatedAt
+            };
+
+            return Created(bookmarkModel.Url, bookmarkModel);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while creating bookmark", error = ex.Message });
+        }
     }
 
     [HttpGet("{bookmarkId}", Name = nameof(GetUserBookmark))]
@@ -87,51 +124,39 @@ public class UserBookmarksController : BaseController
         return Ok(bookmarkModel);
     }
 
-    [HttpPost(Name = nameof(CreateUserBookmark))]
-    public IActionResult CreateUserBookmark(int userId, [FromBody] CreateBookmarkModel createBookmark)
+    [HttpGet(Name = nameof(GetUserBookmarks))]
+    public IActionResult GetUserBookmarks(int userId)
     {
         var authResult = RequireUserMatch(userId);
         if (authResult != null) return authResult;
 
-        if (createBookmark == null)
-            return BadRequest("Bookmark data is required");
-
-        if (string.IsNullOrEmpty(createBookmark.BookmarkType))
-            return BadRequest("BookmarkType is required");
-
-        // Allow either title or person, but not both empty
-        if (string.IsNullOrEmpty(createBookmark.TitleTConst) && string.IsNullOrEmpty(createBookmark.PersonNConst))
-            return BadRequest("Either TitleTConst or PersonNConst must be provided");
-
-        try
-        {
-            var bookmark = _dataService.CreateBookmark(
-                userId,
-                createBookmark.TitleTConst ?? "",
-                createBookmark.PersonNConst ?? "",
-                createBookmark.BookmarkType,
-                createBookmark.Folder ?? "default",
-                createBookmark.Notes ?? "");
-
-            var bookmarkModel = new UserBookmarkModel
+        var bookmarks = _dataService.GetUserBookmarks(userId)
+            .Select(x => new UserBookmarkDto
             {
-                Url = GetUrl(nameof(GetUserBookmark), new { userId, bookmarkId = bookmark.BookmarkId }),
-                BookmarkId = bookmark.BookmarkId,
-                UserId = bookmark.UserId,
-                TitleTConst = bookmark.TitleTConst,
-                PersonNConst = bookmark.PersonNConst,
-                BookmarkType = bookmark.BookmarkType,
-                Folder = bookmark.Folder,
-                Notes = bookmark.Notes,
-                CreatedAt = bookmark.CreatedAt
-            };
+                BookmarkId = x.BookmarkId,
+                UserId = x.UserId,
+                TitleTConst = x.TitleTConst,
+                PersonNConst = x.PersonNConst,
+                BookmarkType = x.BookmarkType,
+                Folder = x.Folder,
+                Notes = x.Notes,
+                CreatedAt = x.CreatedAt
+            })
+            .Select(dto => new UserBookmarkModel
+            {
+                Url = GetUrl(nameof(GetUserBookmark), new { userId, bookmarkId = dto.BookmarkId }),
+                BookmarkId = dto.BookmarkId,
+                UserId = dto.UserId,
+                TitleTConst = dto.TitleTConst,
+                PersonNConst = dto.PersonNConst,
+                BookmarkType = dto.BookmarkType,
+                Folder = dto.Folder,
+                Notes = dto.Notes,
+                CreatedAt = dto.CreatedAt
+            })
+            .ToList();
 
-            return Created(bookmarkModel.Url, bookmarkModel);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest($"Error creating bookmark: {ex.Message}");
-        }
+        return Ok(bookmarks);
     }
 
     [HttpDelete("{bookmarkId}", Name = nameof(DeleteUserBookmark))]

@@ -14,6 +14,70 @@ public class UserNotesController : BaseController
     {
     }
 
+    [HttpPost(Name = nameof(CreateUserNote))]
+    public IActionResult CreateUserNote(int userId, [FromBody] CreateNoteModel createNote)
+    {
+        var authResult = RequireUserMatch(userId);
+        if (authResult != null) return authResult;
+
+        try
+        {
+            var note = _dataService.CreateUserNote(userId, createNote.TitleTConst, createNote.NoteText);
+
+            var noteDto = new UserNoteDto
+            {
+                NoteId = note.NoteId,
+                UserId = note.UserId,
+                TitleTConst = note.TitleTConst,
+                NoteText = note.NoteText,
+                CreatedAt = note.CreatedAt,
+                UpdatedAt = note.UpdatedAt
+            };
+
+            var noteModel = new UserNoteModel
+            {
+                Url = GetUrl(nameof(GetUserNote), new { userId, noteId = noteDto.NoteId }),
+                NoteId = noteDto.NoteId,
+                UserId = noteDto.UserId,
+                TitleTConst = noteDto.TitleTConst,
+                NoteText = noteDto.NoteText,
+                CreatedAt = noteDto.CreatedAt,
+                UpdatedAt = noteDto.UpdatedAt
+            };
+
+            return Created(noteModel.Url, noteModel);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while creating note", error = ex.Message });
+        }
+    }
+
+    [HttpPut("{noteId}", Name = nameof(UpdateUserNote))]
+    public IActionResult UpdateUserNote(int userId, int noteId, [FromBody] CreateNoteModel updateNote)
+    {
+        var authResult = RequireUserMatch(userId);
+        if (authResult != null) return authResult;
+
+        try
+        {
+            if (_dataService.UpdateUserNote(noteId, updateNote.NoteText))
+            {
+                return NoContent();
+            }
+
+            return NotFound();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while updating note", error = ex.Message });
+        }
+    }
+
     [HttpGet(Name = nameof(GetUserNotes))]
     public IActionResult GetUserNotes(int userId)
     {
@@ -76,52 +140,6 @@ public class UserNotesController : BaseController
         };
 
         return Ok(noteModel);
-    }
-
-    [HttpPost(Name = nameof(CreateUserNote))]
-    public IActionResult CreateUserNote(int userId, [FromBody] CreateNoteModel createNote)
-    {
-        var authResult = RequireUserMatch(userId);
-        if (authResult != null) return authResult;
-
-        var note = _dataService.CreateUserNote(userId, createNote.TitleTConst, createNote.NoteText);
-
-        var noteDto = new UserNoteDto
-        {
-            NoteId = note.NoteId,
-            UserId = note.UserId,
-            TitleTConst = note.TitleTConst,
-            NoteText = note.NoteText,
-            CreatedAt = note.CreatedAt,
-            UpdatedAt = note.UpdatedAt
-        };
-
-        var noteModel = new UserNoteModel
-        {
-            Url = GetUrl(nameof(GetUserNote), new { userId, noteId = noteDto.NoteId }),
-            NoteId = noteDto.NoteId,
-            UserId = noteDto.UserId,
-            TitleTConst = noteDto.TitleTConst,
-            NoteText = noteDto.NoteText,
-            CreatedAt = noteDto.CreatedAt,
-            UpdatedAt = noteDto.UpdatedAt
-        };
-
-        return Created(noteModel.Url, noteModel);
-    }
-
-    [HttpPut("{noteId}", Name = nameof(UpdateUserNote))]
-    public IActionResult UpdateUserNote(int userId, int noteId, [FromBody] CreateNoteModel updateNote)
-    {
-        var authResult = RequireUserMatch(userId);
-        if (authResult != null) return authResult;
-
-        if (_dataService.UpdateUserNote(noteId, updateNote.NoteText))
-        {
-            return NoContent();
-        }
-
-        return NotFound();
     }
 
     [HttpDelete("{noteId}", Name = nameof(DeleteUserNote))]

@@ -6,9 +6,9 @@ POST {{baseUrl}}/api/users/register
 Content-Type: application/json
 
 {
-  "username": "saroj2",
-  "email": "saroj2@test.com",
-  "password": "111"
+  "username": "saroj_sunam",
+  "email": "sarojsunam07@gmail.com",
+  "password": "123456"
 }
 
 ### Login user
@@ -16,8 +16,8 @@ POST {{baseUrl}}/api/users/login
 Content-Type: application/json
 
 {
-  "username": "samarpan",
-  "password": "pass123"
+  "username": "saroj_sunam",
+  "password": "123456"
 }
 
 ### 2. Public Data Titles
@@ -41,7 +41,137 @@ Accept: application/json
 ### 3. Authenticated Search
 ### Simple search
 GET {{baseUrl}}/api/search/simple?q=Office
-Authorization: 11
+Authorization: saroj_sunam
+Accept: application/json
+
+### Get "Friends" details
+GET {{baseUrl}}/api/titles/tt0108778
+Accept: application/json
+
+### Test 1: Main title endpoint
+GET {{baseUrl}}/api/titles/tt0108778
+Accept: application/json
+
+### Test 2: OMDb-specific endpoint
+GET {{baseUrl}}/api/titles/tt0108778/omdb
+Accept: application/json
+
+### Simple Search (logs history)
+GET {{baseUrl}}/api/search/simple?q=Office
+Authorization: saroj_sunam
+Accept: application/json
+
+
+
+### Simple Search
+GET {{baseUrl}}/api/search/simple?q=Star
+Authorization: saroj_sunam
+Accept: application/json
+
+### Get user search history
+GET {{baseUrl}}/api/users/28/search-history
+Authorization: saroj_sunam
+Accept: application/json
+
+
+### Search for popular movies
+GET {{baseUrl}}/api/search/structured?title=Star&plot=space
+Authorization: saroj_sunam
+Accept: application/json
+
+### Search with just title
+GET {{baseUrl}}/api/search/structured?title=Star
+Authorization: saroj_sunam
+Accept: application/json
+
+### Search for actors
+GET {{baseUrl}}/api/search/structured?persons=Leonardo
+Authorization: saroj_sunam
+Accept: application/json
+
+### Get user profile 
+GET {{baseUrl}}/api/users/28
+Authorization: saroj_sunam
+Accept: application/json
+
+### 1. First, clear search history to see new logs
+DELETE {{baseUrl}}/api/users/28/search-history
+Authorization: saroj_sunam
+
+### 2. Test Structured Search (should log to history)
+GET {{baseUrl}}/api/search/structured?title=Friends&plot=comedy&characters=Ross&persons=Jennifer
+Authorization: saroj_sunam
+Accept: application/json
+
+### 3. Verify search history was logged
+GET {{baseUrl}}/api/users/28/search-history
+Authorization: saroj_sunam
+Accept: application/json
+
+
+
+### 1-D.6 Find co-players for Keanu Reeves
+GET {{baseUrl}}/api/search/co-players?actorName=Keanu%20Reeves
+Authorization: saroj_sunam
+Accept: application/json
+
+### 1-D.8 Popular actors in "Friends"
+GET {{baseUrl}}/api/titles/tt0108778/popular-actors
+Accept: application/json
+
+### 1-D.9 Similar movies to "Friends"
+GET {{baseUrl}}/api/titles/tt0108778/similar
+Accept: application/json
+
+### 1-D.10 Frequent person words for Keanu Reeves
+GET {{baseUrl}}/api/search/person-words?personName=Keanu%20Reeves&limit=10
+Authorization: saroj_sunam
+Accept: application/json
+
+### 1-D.11 Exact-match querying
+GET {{baseUrl}}/api/search/exact?keywords=star,wars
+Authorization: saroj_sunam
+Accept: application/json
+
+### 1-D.12 Best-match querying
+GET {{baseUrl}}/api/search/best?keywords=star,wars,force&limit=20
+Authorization: saroj_sunam
+Accept: application/json
+
+
+### Test multi-criteria search
+GET http://localhost:7000/api/search/structured?title=Zembilli&plot=friendship
+Authorization: saroj_sunam
+Accept: application/json
+
+### Test title-only search
+GET http://localhost:7000/api/search/structured?title=Treasure
+Authorization: saroj_sunam
+Accept: application/json
+
+### Person Search (currently doesn't log history - you might want to add this)
+GET {{baseUrl}}/api/search/persons?q=Harrison
+Authorization: saroj_sunam
+Accept: application/json
+
+
+
+### Try to bookmark same title twice
+POST {{baseUrl}}/api/users/28/bookmarks
+Authorization: saroj_sunam
+Content-Type: application/json
+
+{
+  "titleTconst": "tt0063929",
+  "personNconst": "",  
+  "bookmarkType": "title",
+  "folder": "Movies",
+  "notes": "Great movie"
+}
+
+
+### Search for actors by name
+GET {{baseUrl}}/api/search/persons?q=Smith
 Accept: application/json
 
 ### 4. User Ratings
@@ -63,41 +193,41 @@ Accept: application/json
 ### 5. User Bookmarks
 
 ### Create title bookmark
-POST {{baseUrl}}/api/users/15/bookmarks
-Authorization: saroj1
+POST {{baseUrl}}/api/users/28/bookmarks
+Authorization: saroj_sunam
 Content-Type: application/json
 
 {
-  "titleTConst": "tt0133093",
-  "personNConst": "",
-  "bookmarkType": "favorite",
-  "folder": "movies",
-  "notes": "Great sci-fi movie"
+ "titleTconst": "tt0063929",
+  "personNconst": "",  
+  "bookmarkType": "title",
+  "folder": "Movies",
+  "notes": "Great movie"
 }
 
 ### Create person bookmark
-POST {{baseUrl}}/api/users/15/bookmarks
-Authorization: saroj1
+POST {{baseUrl}}/api/users/28/bookmarks
+Authorization: saroj_sunam
 Content-Type: application/json
 
 {
   "titleTConst": "",
   "personNConst": "nm3298314",
-  "bookmarkType": "favorite_actor",
+  "bookmarkType": "person",  
   "folder": "actors",
   "notes": "Favorite actor"
 }
 
 ### Get user bookmarks
-GET {{baseUrl}}/api/users/15/bookmarks
-Authorization: saroj1
+GET {{baseUrl}}/api/users/28/bookmarks
+Authorization: saroj_sunam
 Accept: application/json
 
 ### 6. User Notes
 
 ### Create user note
-POST {{baseUrl}}/api/users/26/notes
-Authorization: saroj2
+POST {{baseUrl}}/api/users/28/notes
+Authorization: saroj_sunam
 Content-Type: application/json
 
 {
@@ -113,8 +243,8 @@ Accept: application/json
 ### 7. Search History
 
 ### Get user search history
-GET {{baseUrl}}/api/users/15/search-history
-Authorization: saroj1
+GET {{baseUrl}}/api/users/28/search-history
+Authorization: saroj_sunam
 Accept: application/json
 
 ### 8. Title Details

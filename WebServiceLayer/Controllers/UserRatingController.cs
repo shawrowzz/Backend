@@ -80,34 +80,39 @@ public class UserRatingsController : BaseController
         var authResult = RequireUserMatch(userId);
         if (authResult != null) return authResult;
 
-        var existingRating = _dataService.GetUserRating(userId, createRating.TitleTConst);
-        if (existingRating != null)
+        try
         {
-            return BadRequest("You have already rated this title");
+            var rating = _dataService.CreateUserRating(userId, createRating.TitleTConst, createRating.Rating);
+
+            var ratingDto = new UserRatingDto
+            {
+                RatingId = rating.RatingId,
+                UserId = rating.UserId,
+                TitleTConst = rating.TitleTConst,
+                Rating = rating.Rating,
+                RatedAt = rating.RatedAt
+            };
+
+            var ratingModel = new UserRatingModel
+            {
+                Url = GetUrl(nameof(GetUserRating), new { userId, ratingId = ratingDto.RatingId }),
+                RatingId = ratingDto.RatingId,
+                UserId = ratingDto.UserId,
+                TitleTConst = ratingDto.TitleTConst,
+                Rating = ratingDto.Rating,
+                RatedAt = ratingDto.RatedAt
+            };
+
+            return Created(ratingModel.Url, ratingModel);
         }
-
-        var rating = _dataService.CreateUserRating(userId, createRating.TitleTConst, createRating.Rating);
-
-        var ratingDto = new UserRatingDto
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already rated"))
         {
-            RatingId = rating.RatingId,
-            UserId = rating.UserId,
-            TitleTConst = rating.TitleTConst,
-            Rating = rating.Rating,
-            RatedAt = rating.RatedAt
-        };
-
-        var ratingModel = new UserRatingModel
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
         {
-            Url = GetUrl(nameof(GetUserRating), new { userId, ratingId = ratingDto.RatingId }),
-            RatingId = ratingDto.RatingId,
-            UserId = ratingDto.UserId,
-            TitleTConst = ratingDto.TitleTConst,
-            Rating = ratingDto.Rating,
-            RatedAt = ratingDto.RatedAt
-        };
-
-        return Created(ratingModel.Url, ratingModel);
+            return StatusCode(500, new { message = "An error occurred while creating rating", error = ex.Message });
+        }
     }
 
     [HttpDelete("{ratingId}", Name = nameof(DeleteUserRating))]
